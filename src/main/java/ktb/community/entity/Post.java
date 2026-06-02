@@ -27,7 +27,7 @@ public class Post {
     String postImageUrl;
     @Column(name = "view_count")
     int viewCount;
-
+    @Column
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
     LocalDateTime deletedAt;
