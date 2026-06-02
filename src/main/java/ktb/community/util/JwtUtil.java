@@ -4,6 +4,8 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import ktb.community.entity.User;
+import ktb.community.exception.CustomException;
+import ktb.community.exception.ErrorCode;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -45,6 +47,13 @@ public class JwtUtil {
                 .parseSignedClaims(token)
                 .getPayload();
         return Long.parseLong(claims.getSubject());
+    }
+
+    public String extractToken(String authorization) {
+        if (authorization == null || !authorization.startsWith("Bearer ")) {
+            throw new CustomException(ErrorCode.UNAUTHENTICATED);
+        }
+        return authorization.substring("Bearer ".length()).trim();
     }
 }
 

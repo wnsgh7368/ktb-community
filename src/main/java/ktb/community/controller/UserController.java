@@ -39,7 +39,7 @@ public class UserController {
             @RequestBody UpdateProfileRequest updateProfileRequest
     ) {
         // Header에서 토큰 추출
-        String token = extractToken(authorization);
+        String token = jwtUtil.extractToken(authorization);
         // accessToken에서 userId 추출
         Long userId = jwtUtil.getUserIdFromToken(token);
 
@@ -54,7 +54,7 @@ public class UserController {
             @RequestBody UpdatePasswordRequest updatePasswordRequest) {
 
         // Header에서 토큰 추출
-        String token = extractToken(authorization);
+        String token = jwtUtil.extractToken(authorization);
         // accessToken에서 userId 추출
         Long userId = jwtUtil.getUserIdFromToken(token);
 
@@ -85,10 +85,5 @@ public class UserController {
         throw new CustomException(ErrorCode.INVALID_REQUEST);
     }
 
-    private String extractToken(String authorization) {
-        if (authorization == null || !authorization.startsWith("Bearer ")) {
-            throw new CustomException(ErrorCode.UNAUTHENTICATED);
-        }
-        return authorization.substring("Bearer ".length()).trim();
-    }
+
 }
