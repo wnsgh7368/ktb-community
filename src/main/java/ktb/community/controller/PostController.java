@@ -2,8 +2,10 @@ package ktb.community.controller;
 
 import ktb.community.common.ApiResponse;
 import ktb.community.dto.post.request.CreatePostRequest;
+import ktb.community.dto.post.request.UpdatePostRequest;
 import ktb.community.dto.post.response.CreatePostResponse;
 import ktb.community.dto.post.response.GetPostDetailResponse;
+import ktb.community.dto.post.response.UpdatePostResponse;
 import ktb.community.service.PostService;
 import ktb.community.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -49,5 +51,22 @@ public class PostController {
         GetPostDetailResponse getPostDetailResponse = postService.getPostDetail(userId, postId);
 
         return ResponseEntity.ok(ApiResponse.success("게시글을 성공적으로 조회하였습니다", getPostDetailResponse));
+    }
+
+    // 게시글 수정 API 컨트롤러
+    @PutMapping("/{postId}")
+    public ResponseEntity<ApiResponse<UpdatePostResponse>> updatePost(
+            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @PathVariable Long postId,
+            @RequestBody UpdatePostRequest updatePostRequest) {
+
+        // 헤더에서 토큰 추출 및 토큰에서 userId 추출
+        String token = jwtUtil.extractToken(authorization);
+        Long userId = jwtUtil.getUserIdFromToken(token);
+
+        // 서비스 코드 호출 후 응답 DTO 생성
+        UpdatePostResponse updatePostResponse = postService.updatePost(userId, postId, updatePostRequest);
+
+        return ResponseEntity.ok(ApiResponse.success("게시글을 성공적으로 수정하였습니다", updatePostResponse));
     }
 }

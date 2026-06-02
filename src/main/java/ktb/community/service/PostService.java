@@ -2,8 +2,10 @@ package ktb.community.service;
 
 import jakarta.transaction.Transactional;
 import ktb.community.dto.post.request.CreatePostRequest;
+import ktb.community.dto.post.request.UpdatePostRequest;
 import ktb.community.dto.post.response.CreatePostResponse;
 import ktb.community.dto.post.response.GetPostDetailResponse;
+import ktb.community.dto.post.response.UpdatePostResponse;
 import ktb.community.entity.LikeId;
 import ktb.community.entity.Post;
 import ktb.community.entity.User;
@@ -77,5 +79,25 @@ public class PostService {
                         post.getUser().getNickname(),
                         post.getUser().getProfileImageUrl()
                 ));
+    }
+
+    // 더티 체킹을 위해 트랜잭션 사용
+    @Transactional
+    public UpdatePostResponse updatePost(Long userId, Long postId, UpdatePostRequest req) {
+
+        // postId로 게시글 조회 없으면 -> POST_NOT_FOUND
+        // 조회시, fetch join으로 User를 함께 조회해서 N+1 문제 방지
+        Post post = postRepository.findByIdWithUser(postId)
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+
+        // 수정 권한 판별하기 post의 userId와 클라이언트의 userId 비교 -> 예외: FORBIDDEN
+        if (!post.getUser().getId().equals(userId)) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
+
+        // 엔티티 메서드 updatePost를 통해 해당 엔티티를 수정하고, 이후 트랜잭션이 끝날 때 더티체킹으로 저장
+        post.updatePost(req.title(), req.content(), req.postImageUrl());
+
+        return new UpdatePostResponse(post.getId());
     }
 }

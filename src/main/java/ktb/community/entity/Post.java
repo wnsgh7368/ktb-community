@@ -43,4 +43,9 @@ public class Post extends BaseEntity {
     public void increseViewCount() {
         this.viewCount++;
     }
+    public void updatePost(String title, String content, String postImageUrl) {
+        if (title != null) this.title = title;
+        if (content != null) this.content = content;
+        if (postImageUrl != null) this.postImageUrl = postImageUrl;
+    }
 }
