@@ -13,28 +13,29 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "users")
-public class User {
+public class User extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
-    Long id;
+    private Long id;
 
     @Column(name = "email", nullable = false, unique = true)
-    String email;
+    private String email;
 
     @Column(name = "nickname", nullable = false, unique = true)
-    String nickname;
+    private String nickname;
 
     @Column(name = "password", nullable = false)
-    String password;
+    private String password;
 
     @Column(name = "profile_image_url")
-    String profileImageUrl;
+    private String profileImageUrl;
 
-    LocalDateTime createdAt;
-    LocalDateTime updatedAt;
-    LocalDateTime deletedAt;
-    boolean isDeleted;
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
+    @Column(name = "is_deleted")
+    private boolean isDeleted;
 
     public void updateProfile(String email, String nickname, String profileImageUrl) {
         if (email != null) this.email = email;
