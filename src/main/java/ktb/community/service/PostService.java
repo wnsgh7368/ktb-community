@@ -1,10 +1,9 @@
 package ktb.community.service;
 
-import ktb.community.common.ApiResponse;
+import jakarta.transaction.Transactional;
 import ktb.community.dto.post.request.CreatePostRequest;
 import ktb.community.dto.post.response.CreatePostResponse;
 import ktb.community.dto.post.response.GetPostDetailResponse;
-import ktb.community.dto.user.request.CreateUserRequest;
 import ktb.community.entity.LikeId;
 import ktb.community.entity.Post;
 import ktb.community.entity.User;
@@ -47,14 +46,17 @@ public class PostService {
 
     /**
      * 게시글 상세조회 API 비즈니스 로직
+     * TODO: (고민) 하나의 조회 로직? 비즈니스 로직에 post 조회, post.viewCount 쓰기(+1), like 테이블 조회 3가지 I/O 과정?이 있다..
      */
+    @Transactional
     public GetPostDetailResponse getPostDetail(Long userId, Long postId) {
 
         // postId로 게시글 조회 없으면 -> POST_NOT_FOUND
         // 조회시, fetch join으로 User를 함께 조회해서 N+1 문제 방지
         Post post = postRepository.findByIdWithUser(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
-
+        // 조회를 함과 동시에 뷰 카운트 1 증가
+        post.increseViewCount();
         // (postId, userId) 복합키로 조회한 유저가 조회된 게시글에 좋아요를 눌렀는지 조회
         boolean isLiked = likeRepository.existsById(new LikeId(postId, userId));
         // 조회한 유저가 조회된 게시글의 주인인지 조회

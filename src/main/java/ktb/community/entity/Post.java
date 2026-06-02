@@ -28,7 +28,7 @@ public class Post extends BaseEntity {
     @Column(name = "content", nullable = false)
     private String content;
 
-    @Column(name = "profile_img_url")
+    @Column(name = "post_img_url")
     private String postImageUrl;
 
     @Column(name = "view_count", nullable = false, columnDefinition = "int default 0")
@@ -39,4 +39,8 @@ public class Post extends BaseEntity {
 
     @Column(name = "comment_count", nullable = false, columnDefinition = "int default 0")
     private int commentCount = 0;
+
+    public void increseViewCount() {
+        this.viewCount++;
+    }
 }
