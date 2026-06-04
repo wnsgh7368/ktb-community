@@ -69,4 +69,19 @@ public class PostController {
 
         return ResponseEntity.ok(ApiResponse.success("게시글을 성공적으로 수정하였습니다", updatePostResponse));
     }
+
+    // 게시글 삭제 API 컨트롤러
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<ApiResponse<Void>> deletePost(
+            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @PathVariable Long postId) {
+
+        // 헤더에서 토큰 추출 및 토큰에서 userId 추출
+        String token = jwtUtil.extractToken(authorization);
+        Long userId = jwtUtil.getUserIdFromToken(token);
+
+        postService.deletePost(userId, postId);
+
+        return ResponseEntity.ok(ApiResponse.success("게시글을 성공적으로 삭제하였습니다."));
+    }
 }

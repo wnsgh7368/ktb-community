@@ -28,6 +28,7 @@ public class PostService {
     /**
      * 게시글 생성 API 비즈니스 로직
      */
+    @Transactional
     public CreatePostResponse createPost(Long userId, CreatePostRequest req) {
 
         // userId 로 게시글을 작성하는 유저가 존재하는지 찾는 로직 없으면 -> USER_NOT_FOUND
@@ -81,13 +82,15 @@ public class PostService {
                 ));
     }
 
-    // 더티 체킹을 위해 트랜잭션 사용
+    /**
+     * 게시글 수정 API 비즈니스 로직
+     * 더티 체킹을 위해 트랜잭션 사용
+     */
     @Transactional
     public UpdatePostResponse updatePost(Long userId, Long postId, UpdatePostRequest req) {
 
         // postId로 게시글 조회 없으면 -> POST_NOT_FOUND
-        // 조회시, fetch join으로 User를 함께 조회해서 N+1 문제 방지
-        Post post = postRepository.findByIdWithUser(postId)
+        Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         // 수정 권한 판별하기 post의 userId와 클라이언트의 userId 비교 -> 예외: FORBIDDEN
@@ -99,5 +102,19 @@ public class PostService {
         post.updatePost(req.title(), req.content(), req.postImageUrl());
 
         return new UpdatePostResponse(post.getId());
+    }
+
+    @Transactional
+    public void deletePost(Long userId, Long postId) {
+
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+
+        // 삭제 권한 판별하기 post의 userId와 클라이언트의 userId 비교 -> 예외: FORBIDDEN
+        if (!post.getUser().getId().equals(userId)) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
+
+        postRepository.delete(post);
     }
 }
