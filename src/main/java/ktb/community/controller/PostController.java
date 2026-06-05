@@ -68,26 +68,4 @@ public class PostController {
 
         return ResponseEntity.ok(ApiResponse.success("게시글을 성공적으로 삭제하였습니다."));
     }
-
-    // 게시글 좋아요 등록 API 컨트롤러
-    @PostMapping("/{postId}/likes")
-    public ResponseEntity<ApiResponse<Void>> createLike(
-            @AuthenticationPrincipal Long userId,
-            @PathVariable Long postId) {
-
-        postService.createLike(userId, postId);
-
-        return ResponseEntity.ok(ApiResponse.success("좋아요를 성공적으로 등록하였습니다."));
-    }
-
-    // 게시글 좋아요 삭제 API 컨트롤러
-    @DeleteMapping("/{postId}/likes")
-    public ResponseEntity<ApiResponse<Void>> deleteLike(
-            @AuthenticationPrincipal Long userId,
-            @PathVariable Long postId ) {
-
-        postService.deleteLike(userId, postId);
-
-        return ResponseEntity.ok(ApiResponse.success("좋아요를 성공적으로 취소하였습니다."));
-    }
 }
