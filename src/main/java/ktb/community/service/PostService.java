@@ -58,6 +58,7 @@ public class PostService {
         // 조회시, fetch join으로 User를 함께 조회해서 N+1 문제 방지
         Post post = postRepository.findByIdWithUser(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+        System.out.println("fetch join 발생" + post.getUser());
         // 조회를 함과 동시에 뷰 카운트 1 증가
         post.increseViewCount();
         // (postId, userId) 복합키로 조회한 유저가 조회된 게시글에 좋아요를 눌렀는지 조회

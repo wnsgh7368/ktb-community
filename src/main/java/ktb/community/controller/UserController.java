@@ -12,6 +12,7 @@ import ktb.community.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -35,13 +36,9 @@ public class UserController {
     // 프로필 수정
     @PatchMapping("/profile")
     public ResponseEntity<ApiResponse<UserIdResponse>> updateProfile(
-            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @AuthenticationPrincipal Long userId,
             @RequestBody UpdateProfileRequest updateProfileRequest
     ) {
-        // Header에서 토큰 추출
-        String token = jwtUtil.extractToken(authorization);
-        // accessToken에서 userId 추출
-        Long userId = jwtUtil.getUserIdFromToken(token);
 
         UserIdResponse data = userService.updateProfile(userId, updateProfileRequest);
         return ResponseEntity.ok(ApiResponse.success("유저 정보 수정에 성공하였습니다.", data));
@@ -50,13 +47,8 @@ public class UserController {
     // 3. 비밀번호 수정
     @PutMapping("/me/password")
     public ResponseEntity<ApiResponse<Void>> updatePassword(
-            @RequestHeader("Authorization") String authorization,
+            @AuthenticationPrincipal Long userId,
             @RequestBody UpdatePasswordRequest updatePasswordRequest) {
-
-        // Header에서 토큰 추출
-        String token = jwtUtil.extractToken(authorization);
-        // accessToken에서 userId 추출
-        Long userId = jwtUtil.getUserIdFromToken(token);
 
         userService.updatePassword(userId, updatePasswordRequest);
 

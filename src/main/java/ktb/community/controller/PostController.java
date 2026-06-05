@@ -10,6 +10,7 @@ import ktb.community.service.PostService;
 import ktb.community.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -23,12 +24,8 @@ public class PostController {
     // 게시글 생성 API 컨트롤러
     @PostMapping
     public ResponseEntity<ApiResponse<CreatePostResponse>> createPost(
-            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @AuthenticationPrincipal Long userId,
             @RequestBody CreatePostRequest createUserRequest) {
-
-        // 헤더에서 토큰 추출 및 토큰에서 userId 추출
-        String token = jwtUtil.extractToken(authorization);
-        Long userId = jwtUtil.getUserIdFromToken(token);
 
         // 서비스 코드 호출 후 응답 DTO 생성
         CreatePostResponse createPostResponse = postService.createPost(userId, createUserRequest);
@@ -40,12 +37,8 @@ public class PostController {
     // 게시글 상세 조회 API 컨트롤러
     @GetMapping("/{postId}")
     public ResponseEntity<ApiResponse<GetPostDetailResponse>> getPostDetail(
-            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @AuthenticationPrincipal Long userId,
             @PathVariable Long postId) {
-
-        // 헤더에서 토큰 추출 및 토큰에서 userId 추출
-        String token = jwtUtil.extractToken(authorization);
-        Long userId = jwtUtil.getUserIdFromToken(token);
 
         // 서비스 코드 호출 후 응답 DTO 생성
         GetPostDetailResponse getPostDetailResponse = postService.getPostDetail(userId, postId);
@@ -56,13 +49,9 @@ public class PostController {
     // 게시글 수정 API 컨트롤러
     @PutMapping("/{postId}")
     public ResponseEntity<ApiResponse<UpdatePostResponse>> updatePost(
-            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @AuthenticationPrincipal Long userId,
             @PathVariable Long postId,
             @RequestBody UpdatePostRequest updatePostRequest) {
-
-        // 헤더에서 토큰 추출 및 토큰에서 userId 추출
-        String token = jwtUtil.extractToken(authorization);
-        Long userId = jwtUtil.getUserIdFromToken(token);
 
         // 서비스 코드 호출 후 응답 DTO 생성
         UpdatePostResponse updatePostResponse = postService.updatePost(userId, postId, updatePostRequest);
@@ -73,12 +62,8 @@ public class PostController {
     // 게시글 삭제 API 컨트롤러
     @DeleteMapping("/{postId}")
     public ResponseEntity<ApiResponse<Void>> deletePost(
-            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @AuthenticationPrincipal Long userId,
             @PathVariable Long postId) {
-
-        // 헤더에서 토큰 추출 및 토큰에서 userId 추출
-        String token = jwtUtil.extractToken(authorization);
-        Long userId = jwtUtil.getUserIdFromToken(token);
 
         postService.deletePost(userId, postId);
 

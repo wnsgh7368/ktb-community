@@ -11,7 +11,7 @@ public class GlobalExceptionHandler {
     // 커스텀 에러 핸들러
     @ExceptionHandler(CustomException.class)
     public ResponseEntity<ApiResponse<Void>> handleCustomException(CustomException e) {
-        // 1. ustomException 에서 enum(ErrorCode)를 꺼낸다.
+        // 1. CustomException 에서 enum(ErrorCode)를 꺼낸다.
         ErrorCode errorCode = e.getErrorCode();
         // 2. status -> errorCode의 status, // body -> errorCode
         return ResponseEntity
