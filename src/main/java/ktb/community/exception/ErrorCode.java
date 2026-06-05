@@ -31,8 +31,9 @@ public enum ErrorCode {
     /**
      * Post 에러 코드
      */
-    POST_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 id의 게시글을 찾을 수 없습니다.");
-
+    POST_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 id의 게시글을 찾을 수 없습니다."),
+    LIKE_ALREADY_REGISTERED(HttpStatus.CONFLICT, "이미 좋아요가 등록된 상태입니다."),
+    LIKE_ALREADY_CANCELED(HttpStatus.NOT_FOUND, "이미 좋아요가 취소되어 있는 상태입니다.");
     private final HttpStatus status;
     private final String message;
 }

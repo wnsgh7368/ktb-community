@@ -40,8 +40,14 @@ public class Post extends BaseEntity {
     @Column(name = "comment_count", nullable = false, columnDefinition = "int default 0")
     private int commentCount = 0;
 
-    public void increseViewCount() {
+    public void increaseViewCount() {
         this.viewCount++;
+    }
+    public void increaseLikeCount() {
+        this.likeCount++;
+    }
+    public void decreaseLikeCount() {
+        this.likeCount--;
     }
     public void updatePost(String title, String content, String postImageUrl) {
         if (title != null) this.title = title;

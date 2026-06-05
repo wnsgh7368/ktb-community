@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
-    private final JwtUtil jwtUtil;
 
     // 회원가입
     @PostMapping
@@ -76,6 +75,4 @@ public class UserController {
         }
         throw new CustomException(ErrorCode.INVALID_REQUEST);
     }
-
-
 }

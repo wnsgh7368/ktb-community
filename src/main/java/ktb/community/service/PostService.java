@@ -6,6 +6,7 @@ import ktb.community.dto.post.request.UpdatePostRequest;
 import ktb.community.dto.post.response.CreatePostResponse;
 import ktb.community.dto.post.response.GetPostDetailResponse;
 import ktb.community.dto.post.response.UpdatePostResponse;
+import ktb.community.entity.Like;
 import ktb.community.entity.LikeId;
 import ktb.community.entity.Post;
 import ktb.community.entity.User;
@@ -58,9 +59,8 @@ public class PostService {
         // 조회시, fetch join으로 User를 함께 조회해서 N+1 문제 방지
         Post post = postRepository.findByIdWithUser(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
-        System.out.println("fetch join 발생" + post.getUser());
         // 조회를 함과 동시에 뷰 카운트 1 증가
-        post.increseViewCount();
+        post.increaseViewCount();
         // (postId, userId) 복합키로 조회한 유저가 조회된 게시글에 좋아요를 눌렀는지 조회
         boolean isLiked = likeRepository.existsById(new LikeId(postId, userId));
         // 조회한 유저가 조회된 게시글의 주인인지 조회
@@ -85,7 +85,6 @@ public class PostService {
 
     /**
      * 게시글 수정 API 비즈니스 로직
-     * 더티 체킹을 위해 트랜잭션 사용
      */
     @Transactional
     public UpdatePostResponse updatePost(Long userId, Long postId, UpdatePostRequest req) {
@@ -118,4 +117,57 @@ public class PostService {
 
         postRepository.delete(post);
     }
+
+    /**
+     * 좋아요 등록 API 비즈니스 로직
+     * 좋아요 등록시 post의 like_count도 증가
+     */
+    @Transactional
+    public void createLike(Long userId, Long postId) {
+
+        // 이미 좋아요를 눌렀는지 확인
+        LikeId likeId = new LikeId(postId, userId);
+        if (likeRepository.existsById(likeId)) {
+            throw new CustomException(ErrorCode.LIKE_ALREADY_REGISTERED);
+        }
+
+        // post와 user의 유효성 검증
+        Post post = postRepository.findById(postId).orElseThrow(
+                () -> new CustomException(ErrorCode.POST_NOT_FOUND));
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        // post의 like_count 증가
+        post.increaseLikeCount();
+
+        Like like = Like.builder()
+                .likeId(likeId)
+                .post(post)
+                .user(user)
+                .build();
+
+        likeRepository.save(like);
+    }
+
+    /**
+     * 좋아요 등록 취소 API 비즈니스 로직
+     * 취소시 post의 like_count도 감소
+     */
+    @Transactional
+    public void deleteLike(Long userId, Long postId) {
+
+        // 해당 id의 게시물이 있는지 먼저 체크
+        Post post = postRepository.findById(postId).orElseThrow(
+                () -> new CustomException(ErrorCode.POST_NOT_FOUND));
+
+        // 좋아요가 이미 없는지 확인
+        LikeId likeId = new LikeId(postId, userId);
+        if (!likeRepository.existsById(likeId)) {
+            throw new CustomException(ErrorCode.LIKE_ALREADY_CANCELED);
+        }
+
+        post.decreaseLikeCount(); // post의 like_count 감소
+        likeRepository.deleteById(likeId); // like_id로 삭제
+    }
+
 }
