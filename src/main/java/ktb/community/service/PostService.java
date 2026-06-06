@@ -5,8 +5,8 @@ import ktb.community.dto.post.request.CreatePostRequest;
 import ktb.community.dto.post.request.UpdatePostRequest;
 import ktb.community.dto.post.response.CreatePostResponse;
 import ktb.community.dto.post.response.GetPostDetailResponse;
+import ktb.community.dto.post.response.GetPostsResponse;
 import ktb.community.dto.post.response.UpdatePostResponse;
-import ktb.community.entity.Like;
 import ktb.community.entity.LikeId;
 import ktb.community.entity.Post;
 import ktb.community.entity.User;
@@ -17,6 +17,10 @@ import ktb.community.repository.PostRepository;
 import ktb.community.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+import static ktb.community.dto.post.response.GetPostsResponse.*;
 
 @Service
 @RequiredArgsConstructor
@@ -46,6 +50,34 @@ public class PostService {
         Post saved = postRepository.save(post);
 
         return new CreatePostResponse(saved.getId());
+    }
+
+    @Transactional
+    public GetPostsResponse getPosts(Long cursor, int size) {
+
+        List<Post> posts = postRepository.findPostsByCursor(cursor, size + 1);
+
+        // 긁어온 posts가 11개? -> true -> 다음 데이터가 있음
+        boolean hasNext = posts.size() > size;
+        if (hasNext) {
+            posts = posts.subList(0, size); // 11개 긁어왔으니까 응답은 다시 0 ~ 10 의 post를 줌
+        }
+        Long nextCursor = hasNext ? posts.get(posts.size() - 1).getId() : null;
+
+        List<PostSummary> summaries = posts.stream()
+                .map(p -> new PostSummary(
+                        p.getId(),
+                        p.getTitle(),
+                        p.getLikeCount(),
+                        p.getCommentCount(),
+                        p.getViewCount(),
+                        p.getCreatedAt(),
+                        new PostSummary.Author(
+                                p.getUser().getNickname(),
+                                p.getUser().getProfileImageUrl()
+                        )
+                )).toList();
+        return new GetPostsResponse(summaries, nextCursor, hasNext);
     }
 
     /**

@@ -16,7 +16,7 @@ public class Comment extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long Id;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
@@ -28,4 +28,8 @@ public class Comment extends BaseEntity {
 
     @Column(name = "content", nullable = false)
     private String content;
+
+    public void updateComment(String content) {
+        this.content = content;
+    }
 }

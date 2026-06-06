@@ -7,7 +7,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
-public interface PostRepository extends JpaRepository<Post, Long> {
+public interface PostRepository extends JpaRepository<Post, Long>, PostRepositoryCustom {
 
     @Query("SELECT p FROM Post p JOIN FETCH p.user where p.id = :postId")
     Optional<Post> findByIdWithUser(@Param("postId")Long postId);
