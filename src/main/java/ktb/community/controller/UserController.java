@@ -1,14 +1,14 @@
 package ktb.community.controller;
 
 import ktb.community.common.ApiResponse;
+import ktb.community.dto.user.response.UpdateProfileResponse;
 import ktb.community.exception.CustomException;
 import ktb.community.exception.ErrorCode;
 import ktb.community.dto.user.request.CreateUserRequest;
 import ktb.community.dto.user.request.UpdatePasswordRequest;
 import ktb.community.dto.user.request.UpdateProfileRequest;
-import ktb.community.dto.user.response.UserIdResponse;
+import ktb.community.dto.user.response.CreateUserResponse;
 import ktb.community.service.UserService;
-import ktb.community.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,22 +24,22 @@ public class UserController {
 
     // 회원가입
     @PostMapping
-    public ResponseEntity<ApiResponse<UserIdResponse>> createUser(
+    public ResponseEntity<ApiResponse<CreateUserResponse>> createUser(
             @RequestBody CreateUserRequest createUserRequest
     ) {
-        UserIdResponse data = userService.createUser(createUserRequest);
+        CreateUserResponse data = userService.createUser(createUserRequest);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("회원가입에 성공하였습니다.", data));
     }
 
     // 프로필 수정
     @PatchMapping("/profile")
-    public ResponseEntity<ApiResponse<UserIdResponse>> updateProfile(
+    public ResponseEntity<ApiResponse<UpdateProfileResponse>> updateProfile(
             @AuthenticationPrincipal Long userId,
             @RequestBody UpdateProfileRequest updateProfileRequest
     ) {
 
-        UserIdResponse data = userService.updateProfile(userId, updateProfileRequest);
+        UpdateProfileResponse data = userService.updateProfile(userId, updateProfileRequest);
         return ResponseEntity.ok(ApiResponse.success("유저 정보 수정에 성공하였습니다.", data));
     }
 

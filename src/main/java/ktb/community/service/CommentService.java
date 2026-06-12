@@ -5,9 +5,7 @@ import ktb.community.dto.comment.request.CreateCommentRequest;
 import ktb.community.dto.comment.request.UpdateCommentRequest;
 import ktb.community.dto.comment.response.CreateCommentResponse;
 import ktb.community.dto.comment.response.GetCommentsResponse;
-import ktb.community.dto.comment.response.GetCommentsResponse.CommentSummary;
 import ktb.community.dto.comment.response.UpdateCommentResponse;
-import ktb.community.dto.post.response.GetPostsResponse.PostSummary.Author;
 import ktb.community.entity.Comment;
 import ktb.community.entity.Post;
 import ktb.community.entity.User;
@@ -47,7 +45,7 @@ public class CommentService {
 
         Comment saved = commentRepository.save(comment);
 
-        return new CreateCommentResponse(post.getId(), saved.getId());
+        return CreateCommentResponse.of(post, saved);
     }
 
     @Transactional
@@ -60,19 +58,7 @@ public class CommentService {
         }
         Long nextCursor = hasNext ? comments.get(comments.size() - 1).getId() : null;
 
-        List<CommentSummary> summaries = comments.stream()
-                .map(c -> new CommentSummary(
-                        c.getId(),
-                        c.getContent(),
-                        c.getCreatedAt(),
-                        c.getUser().getId() == userId,
-                        new CommentSummary.Author(
-                                c.getUser().getNickname(),
-                                c.getUser().getProfileImageUrl()
-                        )
-                )).toList();
-
-        return new GetCommentsResponse(summaries, nextCursor, hasNext);
+        return GetCommentsResponse.of(comments, nextCursor, hasNext, userId);
     }
 
     @Transactional
@@ -90,7 +76,7 @@ public class CommentService {
         }
         comment.updateComment(req.content());
 
-        return new UpdateCommentResponse(comment.getId());
+        return UpdateCommentResponse.of(comment);
     }
 
     @Transactional

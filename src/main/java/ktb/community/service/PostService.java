@@ -49,7 +49,7 @@ public class PostService {
         // post entity 저장 후 postId return
         Post saved = postRepository.save(post);
 
-        return new CreatePostResponse(saved.getId());
+        return CreatePostResponse.of(saved);
     }
 
     @Transactional
@@ -64,20 +64,7 @@ public class PostService {
         }
         Long nextCursor = hasNext ? posts.get(posts.size() - 1).getId() : null;
 
-        List<PostSummary> summaries = posts.stream()
-                .map(p -> new PostSummary(
-                        p.getId(),
-                        p.getTitle(),
-                        p.getLikeCount(),
-                        p.getCommentCount(),
-                        p.getViewCount(),
-                        p.getCreatedAt(),
-                        new PostSummary.Author(
-                                p.getUser().getNickname(),
-                                p.getUser().getProfileImageUrl()
-                        )
-                )).toList();
-        return new GetPostsResponse(summaries, nextCursor, hasNext);
+        return GetPostsResponse.of(posts, nextCursor, hasNext);
     }
 
     /**
@@ -99,20 +86,7 @@ public class PostService {
         boolean isOwner = post.getUser().getId().equals(userId);
 
         // 응답 DTO 생성
-        return new GetPostDetailResponse(
-                post.getId(),
-                post.getTitle(),
-                post.getPostImageUrl(),
-                post.getLikeCount(),
-                post.getViewCount(),
-                post.getCommentCount(),
-                post.getCreatedAt(),
-                isLiked,
-                isOwner,
-                new GetPostDetailResponse.AuthorResponse(
-                        post.getUser().getNickname(),
-                        post.getUser().getProfileImageUrl()
-                ));
+        return GetPostDetailResponse.of(post, isLiked, isOwner);
     }
 
     /**
@@ -133,7 +107,7 @@ public class PostService {
         // 엔티티 메서드 updatePost를 통해 해당 엔티티를 수정하고, 이후 트랜잭션이 끝날 때 더티체킹으로 저장
         post.updatePost(req.title(), req.content(), req.postImageUrl());
 
-        return new UpdatePostResponse(post.getId());
+        return UpdatePostResponse.of(post);
     }
 
     @Transactional

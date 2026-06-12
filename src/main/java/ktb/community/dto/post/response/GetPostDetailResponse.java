@@ -1,5 +1,8 @@
 package ktb.community.dto.post.response;
 
+import ktb.community.dto.comment.response.GetCommentsResponse;
+import ktb.community.entity.Post;
+
 import java.time.LocalDateTime;
 
 public record GetPostDetailResponse(
@@ -18,6 +21,23 @@ public record GetPostDetailResponse(
             String nickname,
             String profileImageUrl
     ){}
+
+    public static GetPostDetailResponse of(Post post, boolean isLiked, boolean isOwner) {
+        return new GetPostDetailResponse(
+                post.getId(),
+                post.getTitle(),
+                post.getPostImageUrl(),
+                post.getLikeCount(),
+                post.getViewCount(),
+                post.getCommentCount(),
+                post.getCreatedAt(),
+                isLiked,
+                isOwner,
+                new GetPostDetailResponse.AuthorResponse(
+                        post.getUser().getNickname(),
+                        post.getUser().getProfileImageUrl()
+                ));
+    }
 }
 
 /**
