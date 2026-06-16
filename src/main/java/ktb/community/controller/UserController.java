@@ -1,5 +1,6 @@
 package ktb.community.controller;
 
+import jakarta.validation.Valid;
 import ktb.community.common.ApiResponse;
 import ktb.community.dto.user.response.UpdateProfileResponse;
 import ktb.community.exception.CustomException;
@@ -25,7 +26,7 @@ public class UserController {
     // 회원가입
     @PostMapping
     public ResponseEntity<ApiResponse<CreateUserResponse>> createUser(
-            @RequestBody CreateUserRequest createUserRequest
+            @RequestBody @Valid CreateUserRequest createUserRequest
     ) {
         CreateUserResponse data = userService.createUser(createUserRequest);
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -36,7 +37,7 @@ public class UserController {
     @PatchMapping("/profile")
     public ResponseEntity<ApiResponse<UpdateProfileResponse>> updateProfile(
             @AuthenticationPrincipal Long userId,
-            @RequestBody UpdateProfileRequest updateProfileRequest
+            @RequestBody @Valid UpdateProfileRequest updateProfileRequest
     ) {
 
         UpdateProfileResponse data = userService.updateProfile(userId, updateProfileRequest);
@@ -47,7 +48,7 @@ public class UserController {
     @PutMapping("/me/password")
     public ResponseEntity<ApiResponse<Void>> updatePassword(
             @AuthenticationPrincipal Long userId,
-            @RequestBody UpdatePasswordRequest updatePasswordRequest) {
+            @RequestBody @Valid UpdatePasswordRequest updatePasswordRequest) {
 
         userService.updatePassword(userId, updatePasswordRequest);
 

@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 public record GetPostDetailResponse(
    Long postId,
    String title,
+   String content,
    String imageUrl,
    int likesCount,
    int viewsCount,
@@ -26,6 +27,7 @@ public record GetPostDetailResponse(
         return new GetPostDetailResponse(
                 post.getId(),
                 post.getTitle(),
+                post.getContent(),
                 post.getPostImageUrl(),
                 post.getLikeCount(),
                 post.getViewCount(),

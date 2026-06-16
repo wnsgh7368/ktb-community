@@ -2,8 +2,11 @@ package ktb.community.exception;
 
 import ktb.community.common.ApiResponse;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.List;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -17,6 +20,19 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(errorCode.getStatus())
                 .body(ApiResponse.error(errorCode));
+    }
+
+    // Controller에서 @valid 실패시 내려주는 응답
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiResponse<List<FieldErrorDetail>>> handleValidException(MethodArgumentNotValidException e) {
+
+        List<FieldErrorDetail> details = e.getBindingResult().getFieldErrors().stream()
+                .map(FieldErrorDetail::of)
+                .toList();
+
+        return ResponseEntity
+                .status(ErrorCode.INVALID_REQUEST.getStatus())
+                .body(ApiResponse.error(ErrorCode.INVALID_REQUEST, details));
     }
 
     // 예기치 못한 서버 에러 핸들러

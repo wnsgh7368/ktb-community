@@ -1,5 +1,6 @@
 package ktb.community.controller;
 
+import jakarta.validation.Valid;
 import ktb.community.common.ApiResponse;
 import ktb.community.dto.post.request.CreatePostRequest;
 import ktb.community.dto.post.request.UpdatePostRequest;
@@ -61,7 +62,7 @@ public class PostController {
     public ResponseEntity<ApiResponse<UpdatePostResponse>> updatePost(
             @AuthenticationPrincipal Long userId,
             @PathVariable Long postId,
-            @RequestBody UpdatePostRequest updatePostRequest) {
+            @RequestBody @Valid UpdatePostRequest updatePostRequest) {
 
         // 서비스 코드 호출 후 응답 DTO 생성
         UpdatePostResponse updatePostResponse = postService.updatePost(userId, postId, updatePostRequest);

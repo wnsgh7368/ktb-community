@@ -1,5 +1,6 @@
 package ktb.community.controller;
 
+import jakarta.validation.Valid;
 import ktb.community.common.ApiResponse;
 import ktb.community.dto.comment.request.CreateCommentRequest;
 import ktb.community.dto.comment.request.UpdateCommentRequest;
@@ -25,7 +26,7 @@ public class CommentController {
     public ResponseEntity<ApiResponse<CreateCommentResponse>> createComment(
             @AuthenticationPrincipal Long userId,
             @PathVariable Long postId,
-            @RequestBody CreateCommentRequest createCommentRequest) {
+            @RequestBody @Valid CreateCommentRequest createCommentRequest) {
 
         CreateCommentResponse createCommentResponse = commentService.createComment(userId, postId, createCommentRequest);
 
@@ -37,7 +38,7 @@ public class CommentController {
             @AuthenticationPrincipal Long userId,
             @PathVariable Long postId,
             @PathVariable Long commentId,
-            @RequestBody UpdateCommentRequest updateCommentRequest ) {
+            @RequestBody @Valid UpdateCommentRequest updateCommentRequest ) {
 
         UpdateCommentResponse updateCommentResponse = commentService.updateComment(userId, postId, commentId, updateCommentRequest);
 
