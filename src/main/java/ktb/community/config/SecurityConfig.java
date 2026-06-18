@@ -1,5 +1,6 @@
 package ktb.community.config;
 
+import ktb.community.securiy.CustomAuthenticationEntryPoint;
 import ktb.community.securiy.JWTAuthenticationFilter;
 import ktb.community.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -57,7 +58,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, CustomAuthenticationEntryPoint customAuthenticationEntryPoint) {
         http
                 .cors(cors -> {})
                 // CsrfFilter 끄기
@@ -73,7 +74,9 @@ public class SecurityConfig {
                 .addFilterBefore(new JWTAuthenticationFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class)
                 // public api와 private api 구분
                 .authorizeHttpRequests(auth -> auth.requestMatchers(PUBLIC_PATH).permitAll()
-                        .anyRequest().authenticated());
+                        .anyRequest().authenticated())
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(customAuthenticationEntryPoint));
 
         return http.build();
 

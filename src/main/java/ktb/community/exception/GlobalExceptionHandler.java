@@ -6,6 +6,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 @RestControllerAdvice
@@ -24,10 +25,10 @@ public class GlobalExceptionHandler {
 
     // Controller에서 @valid 실패시 내려주는 응답
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse<List<FieldErrorDetail>>> handleValidException(MethodArgumentNotValidException e) {
+    public ResponseEntity<ApiResponse<List<ValidExceptionResponse>>> handleValidException(MethodArgumentNotValidException e) {
 
-        List<FieldErrorDetail> details = e.getBindingResult().getFieldErrors().stream()
-                .map(FieldErrorDetail::of)
+        List<ValidExceptionResponse> details = e.getBindingResult().getFieldErrors().stream()
+                .map(ValidExceptionResponse::of)
                 .toList();
 
         return ResponseEntity
@@ -42,4 +43,6 @@ public class GlobalExceptionHandler {
                 .status(ErrorCode.INTERNAL_SERVER_ERROR.getStatus())
                 .body(ApiResponse.error(ErrorCode.INTERNAL_SERVER_ERROR));
     }
+
+//    @ExceptionHandler(AccessDeniedException.class)
 }
