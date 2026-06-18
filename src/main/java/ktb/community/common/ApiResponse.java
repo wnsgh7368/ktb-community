@@ -13,6 +13,5 @@ public record ApiResponse<T>(String message, T data) {
     }
 
     public static ApiResponse<Void> error(ErrorCode errorCode) { return new ApiResponse<>(errorCode.getMessage(), null);}
-    public static <T> ApiResponse<T> error(ErrorCode errorCode, T data) { return new ApiResponse<>(errorCode.getMessage(), data);}
 
 }

@@ -28,4 +28,3 @@ logs/
 application.yaml
 .env
 .env.*
-src/main/java/ktb/community/config/SeedConfig.java

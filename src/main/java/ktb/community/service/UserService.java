@@ -1,12 +1,11 @@
 package ktb.community.service;
 
-import ktb.community.dto.user.response.UpdateProfileResponse;
 import ktb.community.exception.CustomException;
 import ktb.community.exception.ErrorCode;
 import ktb.community.dto.user.request.CreateUserRequest;
 import ktb.community.dto.user.request.UpdatePasswordRequest;
 import ktb.community.dto.user.request.UpdateProfileRequest;
-import ktb.community.dto.user.response.CreateUserResponse;
+import ktb.community.dto.user.response.UserIdResponse;
 import ktb.community.entity.User;
 import ktb.community.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +22,7 @@ public class UserService {
     /*
      * 1. 회원가입 서비스 코드
      */
-    public CreateUserResponse createUser(CreateUserRequest req) {
+    public UserIdResponse createUser(CreateUserRequest req) {
         // 1-1. 이메일 중복 체크 (중복 -> DUPLICATE_EMAIL 에러)
         if (userRepository.existsByEmail(req.email())) {
             throw new CustomException(ErrorCode.DUPLICATE_EMAIL);
@@ -41,14 +40,13 @@ public class UserService {
                 .build();
         // 1-4. user 저장
         User saved = userRepository.save(user);
-
-        return CreateUserResponse.of(saved);
+        return new UserIdResponse(saved.getId());
     }
 
     /*
      * 2. 프로필 수정 서비스 코드
      */
-    public UpdateProfileResponse updateProfile(Long userId, UpdateProfileRequest req) {
+    public UserIdResponse updateProfile(Long userId, UpdateProfileRequest req) {
         // 2-1. userId로 DB에서 user 찾기 (없으면 -> USER_NOT_FOUND 에러)
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
@@ -68,8 +66,7 @@ public class UserService {
          */
         user.updateProfile(req.email(), req.nickname(), req.profileImageUrl());
         userRepository.save(user);
-
-        return UpdateProfileResponse.of(user);
+        return new UserIdResponse(user.getId());
     }
 
     /*
