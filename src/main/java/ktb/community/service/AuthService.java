@@ -32,7 +32,7 @@ public class AuthService {
         }
         String accessToken = jwtUtil.generateAccessToken(user);
 
-        return new LoginResponse(user.getId(), accessToken);
+        return LoginResponse.of(user, accessToken);
     }
 }
 
