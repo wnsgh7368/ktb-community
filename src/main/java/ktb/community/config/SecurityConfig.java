@@ -30,7 +30,9 @@ public class SecurityConfig {
     private static final String[] PUBLIC_PATH = {
             // auth 관련
             "/auth/**",
-            "/users"
+            "/users",
+            // 헬스체크
+            "/aculator/health"
     };
 
     @Bean
