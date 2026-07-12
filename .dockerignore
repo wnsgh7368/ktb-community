@@ -1,0 +1,11 @@
+# 개인 IDE 설정 및 빌드 파일 #
+.idea
+build/
+
+# GIT 관련 설정 #
+.gitattributes
+.gitignore
+
+# 빌드 관련
+.gradle
+*.iml
