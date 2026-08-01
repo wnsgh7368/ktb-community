@@ -1,0 +1,57 @@
+name: cd
+
+on:
+  push:
+    branches: [ 'main' ]
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Gradle Cache
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build
+        run: ./gradlew clean build -x test --no-daemon
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::474668428016:role/github-action-ecr
+          aws-region: ap-northeast-2
+
+      - name: Login to ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.ecr.outputs.registry }}/talk2wall-be:${{ github.sha }}
+
+      - name: Update manifest repo
+        run: |
+          git clone https://x-access-token:${{ secrets.MANIFEST_TOKEN }}@github.com/wnsgh7368/talk2wall-manifest.git
+          cd talk2wall-manifest
+          yq -i '.image.version = "${{ github.sha }}"' backend/chart/values.yaml
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git commit -am "chore: bump backend to ${{ github.sha }}"
+          git push

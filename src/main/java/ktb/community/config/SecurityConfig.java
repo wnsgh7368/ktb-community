@@ -32,7 +32,8 @@ public class SecurityConfig {
             "/auth/**",
             "/users",
             // 헬스체크
-            "/aculator/health"
+            "/health",
+            "/check/**"
     };
 
     @Bean
