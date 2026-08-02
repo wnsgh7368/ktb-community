@@ -25,7 +25,6 @@ out/
 logs/
 
 ### Local / Secret configs ###
-application.yaml
 .env
 .env.*
 src/main/java/ktb/community/config/SeedConfig.java
