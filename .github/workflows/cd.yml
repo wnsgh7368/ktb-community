@@ -53,7 +53,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ steps.ecr.outputs.registry }}/talk2wall-be:${{ github.sha }}
+          tags: ${{ steps.ecr.outputs.registry }}/talk2wall/be:${{ github.sha }}
 
       - name: Update manifest repo
         run: |
