@@ -57,11 +57,10 @@ jobs:
 
       - name: Update manifest repo
         run: |
-          git clone https://x-access-token:${{ secrets.MANIFEST_TOKEN }}@github.com/wnsgh7368/talk2wall-manifest.git
-          cd talk2wall-manifest
-          yq -i '.image.version = "${{ github.sha }}"' backend/chart/values-image.yaml
-          git commit -am "chore: bump backend to ${{ github.sha }}"
-          git config user.name "github-actions"
-          git config user.email "actions@github.com"
-          git commit -am "chore: bump backend to ${{ github.sha }}"
-          git push
+            git clone https://x-access-token:${{ secrets.MANIFEST_TOKEN }}@github.com/wnsgh7368/talk2wall-manifest.git
+            cd talk2wall-manifest
+            git config user.name "github-actions"
+            git config user.email "actions@github.com"
+            yq -i '.image.version = "${{ github.sha }}"' backend/chart/values-image.yaml
+            git commit -am "chore: bump backend to ${{ github.sha }}"
+            git push
