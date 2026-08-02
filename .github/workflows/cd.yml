@@ -29,6 +29,15 @@ jobs:
       - name: Build
         run: ./gradlew clean build -x test --no-daemon
 
+      - name: Debug OIDC claims
+        run: |
+            TOKEN=$(curl -sS \
+              -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+              "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.amazonaws.com" | jq -r .value)
+            p=$(echo "$TOKEN" | cut -d. -f2 | tr '_-' '/+')
+            while [ $(( ${#p} % 4 )) -ne 0 ]; do p="${p}="; done
+            echo "$p" | base64 -d | jq '{iss, aud, sub, repository, repository_owner}'
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
