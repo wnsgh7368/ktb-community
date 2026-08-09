@@ -1,38 +1,54 @@
+server:
+  port: 8080
+  tomcat:
+    mbeanregistry:
+      enabled: true
+
 spring:
   datasource:
-    # allowPublicKeyRetrieval=true&useSSL=false <- 보안 매우 취약! 배포시에 주의
-    url: jdbc:mysql://${DB_HOST}:${DB_PORT:3306}/${DB_NAME}?serverTimezone=UTC&allowPublicKeyRetrieval=true&useSSL=false
+    hikari:
+      maximum-pool-size: 40
+      connection-timeout: 3000
+    url: jdbc:mysql://${DB_HOST}:${DB_PORT:3306}/${DB_NAME}?serverTimezone=UTC
     username: ${USER_NAME}
     password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     hibernate:
-      ddl-auto: update
     properties:
       hibernate:
         format_sql: true
-        # 실제 실행된 JPQL을 확인_URL하기 위한 설정
-        use_sql_comments: true
 
   jackson:
     property-naming-strategy: SNAKE_CASE # json 직렬화, 역직렬화
 
 logging:
-  level:
-    # 기존
-    org.hibernate.SQL: debug
-    # 요청/응답 전체 흐름
-    org.springframework.web: debug # 요청 매핑, 컨트롤러 라우팅
-    org.springframework.web.filter.CommonsRequestLoggingFilter: debug
-    org.springframework.security: debug # Security 필터 체인 전체 보기
-    # Hibernate
-    org.hibernate.orm.jdbc.bind: trace # ? 자리에 실제 값
-    # 내 패키지
-    ktb.community: debug
 
 jwt:
   secret: ${JWT_SECRET}
   expiration-time: ${EXPIRATION_TIME}
 
-kind: Application
+management:
+  server:
+    port: 9090
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health
+          - info
+          - metrics
+          - prometheus
+  metrics:
+    tags:
+      application: talk2wall-be
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+        hikaricp.connections.usage: true
+        hikaricp.connections.acquire: true
+      slo:
+        http.server.requests: 50ms,100ms,200ms,500ms,1s,2s,5s
+        hikaricp.connections.acquire: 100us,500us,1ms,5ms,10ms,50ms,100ms,500ms,3s
+        hikaricp.connections.usage: 500us,1ms,5ms,10ms,50ms,100ms,500ms,1s
