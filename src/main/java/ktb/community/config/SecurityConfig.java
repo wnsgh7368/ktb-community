@@ -4,6 +4,7 @@ import ktb.community.securiy.CustomAuthenticationEntryPoint;
 import ktb.community.securiy.JWTAuthenticationFilter;
 import ktb.community.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.security.autoconfigure.actuate.web.servlet.EndpointRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -18,7 +19,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
 import java.util.List;
 
 @Configuration
@@ -33,7 +33,8 @@ public class SecurityConfig {
             "/users",
             // 헬스체크
             "/health",
-            "/check/**"
+            "/check/**",
+            "/actuator/**"
     };
 
     @Bean
@@ -76,18 +77,14 @@ public class SecurityConfig {
                 // JWT 필터 추가
                 .addFilterBefore(new JWTAuthenticationFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class)
                 // public api와 private api 구분
-                .authorizeHttpRequests(auth -> auth.requestMatchers(PUBLIC_PATH).permitAll()
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(EndpointRequest.toAnyEndpoint()).permitAll()
+                        .requestMatchers(PUBLIC_PATH).permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(customAuthenticationEntryPoint));
 
         return http.build();
 
-//        SecurityFilterChain chain = http.build();
-//
-////        // 필터 목록 출력
-////        chain.getFilters().forEach(filter ->
-////                System.out.println("필터: " + filter.getClass().getSimpleName())
-////        );
     }
 }

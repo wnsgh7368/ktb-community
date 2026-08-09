@@ -52,6 +52,9 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	// validation
 	implementation 'org.springframework.boot:spring-boot-starter-validation:2.7.4'
+	// monitoring
+	implementation 'org.springframework.boot:spring-boot-starter-actuator' // SpringBoot 애플리케이션의 정보를 다룰 수 있게 함
+	implementation 'io.micrometer:micrometer-registry-prometheus' // Prometheus가 읽을 수 있는 metrics를 제공
 }
 
 tasks.named('test') {
