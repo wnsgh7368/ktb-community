@@ -1,6 +1,6 @@
-# Talk2Wall Back-end
+# Talk2Wall Backend
 
-개발 경험과 일상적인 생각을 나누는 커뮤니티 서비스 **Talk2Wall**의 백엔드 API 서버입니다.  
+여러 주제, 여러 생각 등 아무말이나 할 수 있는 커뮤니티 서비스 **Talk2Wall**의 백엔드 API 서버입니다.  
 Spring Boot와 MySQL을 기반으로 회원, 인증, 게시글, 댓글, 좋아요 기능을 구현했으며 JWT 기반의 무상태 인증 방식을 적용했습니다.
 
 ## 개발 인원 및 기간
@@ -17,8 +17,8 @@ Spring Boot와 MySQL을 기반으로 회원, 인증, 게시글, 댓글, 좋아�
 | Database | MySQL, HikariCP |
 | Query | QueryDSL |
 | Authentication | JWT, BCrypt |
-| Monitoring | Spring Boot Actuator, Micrometer, Prometheus |
-| Deployment | Docker, Docker Compose, Nginx, AWS ECR, GitHub Actions |
+| Monitoring | Spring Boot Actuator, Micrometer, Prometheus, Grafana |
+| Deployment | Docker, Docker Compose, Nginx, AWS ECR, GitHub Actions, ArgoCD |
 | Build | Gradle |
 
 ## 폴더 구조
@@ -87,56 +87,10 @@ Controller → Service → Repository → MySQL
 - `ErrorCode`와 `GlobalExceptionHandler`를 통한 예외 응답 일원화
 - JPA Auditing으로 생성·수정 일시 자동 관리
 - Actuator와 Prometheus용 메트릭 엔드포인트 제공
-- Docker 이미지 빌드, GitHub Actions CI/CD, Blue-Green 배포용 Docker Compose 구성
+- Docker 이미지 빌드, GitHub Actions, ArgoCD 기반 CI/CD
 
 ## 데이터베이스 설계
-
-```mermaid
-erDiagram
-    USERS ||--o{ POST : writes
-    USERS ||--o{ COMMENT : writes
-    USERS ||--o{ LIKES : creates
-    POST ||--o{ COMMENT : contains
-    POST ||--o{ LIKES : receives
-
-    USERS {
-        bigint user_id PK
-        varchar email UK
-        varchar nickname UK
-        varchar password
-        varchar profile_image_url
-        datetime created_at
-        datetime updated_at
-    }
-    POST {
-        bigint post_id PK
-        bigint user_id FK
-        varchar title
-        text content
-        varchar post_img_url
-        int view_count
-        int like_count
-        int comment_count
-        datetime created_at
-        datetime updated_at
-    }
-    COMMENT {
-        bigint id PK
-        bigint post_id FK
-        bigint user_id FK
-        text content
-        datetime created_at
-        datetime updated_at
-    }
-    LIKES {
-        bigint post_id PK, FK
-        bigint user_id PK, FK
-    }
-```
-
-- `users`는 이메일과 닉네임에 유니크 제약을 둡니다.
-- `likes`는 `post_id`, `user_id` 복합 키로 한 사용자의 중복 좋아요를 방지합니다.
-- `post`는 조회 수, 좋아요 수, 댓글 수를 함께 보관합니다.
+<img width="837" height="408" alt="image" src="https://github.com/user-attachments/assets/0cfb8601-82c1-49fe-8482-5821dadd1264" />
 
 ## API 요약
 
@@ -217,3 +171,11 @@ main 브랜치 Push
 - `main` 브랜치에 푸시되면 Docker 이미지를 빌드해 AWS ECR에 푸시합니다.
 - GitHub Actions가 `talk2wall-manifest` 저장소의 `values-image.yaml` 이미지 태그를 새 커밋 SHA로 갱신합니다.
 - Argo CD가 매니페스트 저장소의 변경을 감지해 클러스터 배포 상태를 동기화합니다.
+
+## 추가 개선할 점
+
+### 데이터베이스 커넥션 풀 튜닝
+HikariCP의 커넥션 풀 크기, 커넥션 타임아웃 등 설정을 서비스 트래픽과 DB 사양에 맞게 조정할 예정입니다. 모니터링 지표 및 쿼리 속도를 바탕으로 커넥션 대기 시간과 사용량을 분석해 안정적인 DB 연결을 유지하고자 합니다.
+
+### JVM 메모리 최적화
+컨테이너 환경의 메모리 제한을 고려해 JVM Heap 크기와 GC 옵션을 조정할 예정입니다. 메모리 사용량, GC 시간, 응답 지연을 관찰하여 불필요한 메모리 사용을 줄이고 애플리케이션의 안정성을 높이고자 합니다.
